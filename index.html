@@ -94,6 +94,7 @@ footer{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:1
 body.open #shade{opacity:1;pointer-events:auto}
 body.open #sheet{visibility:visible;transform:translate(-50%,0)}
 #sheet-close{display:block;margin-left:auto}
+#site-url{display:block;color:var(--acc);overflow-wrap:anywhere}
 #sheet .grab{width:38px;height:3px;border-radius:9px;background:var(--faint);margin:0 auto 10px}
 #sheet h2{font-size:10.5px;font-weight:500;letter-spacing:.34em;color:var(--acc);margin:20px 0 8px}
 label.row{display:grid;grid-template-columns:72px minmax(0,1fr) 44px;align-items:center;gap:12px;padding:5px 0;letter-spacing:.08em}
@@ -195,6 +196,9 @@ input[type=number]{width:62px}
   <div class="inline"><button class="soft" id="midi">下載 MIDI</button><span id="midiinfo" class="tip">尚未產生音符</span></div>
   <h2>版本更新</h2>
   <p id="release-version">版本 2026.11.16 · <time datetime="2026-11-16">2026 年 11 月 16 日</time></p>
+  <p class="tip">專注樂坊網址
+    <a id="site-url" href="https://uktwanimatorcodeps.github.io/Generative-music-tool/">https://uktwanimatorcodeps.github.io/Generative-music-tool/</a>
+  </p>
   <ul class="tip">
     <li>手機直向、橫向皆可使用，改善捲動、安全區域與觸控操作。</li>
     <li>新增停止按鈕。切到背景或音訊中斷後，回到頁面可點「繼續播放」。</li>

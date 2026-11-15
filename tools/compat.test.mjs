@@ -134,6 +134,10 @@ for (const [label, engine, profile, launch] of profiles) {
       await press(page.locator('#treset'));
       assert.equal(await page.locator('#clock').textContent(), '10:00');
       await page.locator('#release-version').scrollIntoViewIfNeeded();
+      const siteUrl = page.locator('#site-url');
+      await siteUrl.scrollIntoViewIfNeeded();
+      assert.equal(await siteUrl.getAttribute('href'), 'https://uktwanimatorcodeps.github.io/Generative-music-tool/');
+      assert.ok(await siteUrl.evaluate(link => link.clientWidth >= link.scrollWidth));
       assert.match(await page.locator('#release-version').textContent(), /版本 2026\.11\.16/);
       await press(page.locator('#sheet-close'));
       const music = await page.evaluate(() => Object.values(window.__selftest()));
