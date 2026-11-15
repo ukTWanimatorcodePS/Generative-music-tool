@@ -4,6 +4,8 @@
 
 ## 使用方式
 
+使用 Safari 或 Chrome 開啟 [專注樂坊線上版](https://uktwanimatorcodeps.github.io/Generative-music-tool/)，點「播放」即可使用。網站的「調整 → 版本更新」可查看目前發布版本。
+
 直接用瀏覽器開啟 `index.html`，按播放即可。不需要安裝任何東西。
 
 也可以啟動內建的靜態伺服器：
@@ -45,3 +47,36 @@ node tools/serve.mjs
 | 電鋼琴、大鍵琴、馬林巴、鋼片琴、顫音琴、音樂盒、箏、撥弦、低音提琴、弦樂群、合唱 | [gleitz/midi-js-soundfonts](https://github.com/gleitz/midi-js-soundfonts) 的 MusyngKite | CC BY-SA 3.0 |
 
 取樣經過的處理：轉成 base64、載入時去除開頭空白、長音樂器製作循環段。
+
+## 行動裝置與回歸測試
+
+同一個頁面支援直向和橫向。短螢幕可以捲到播放列，調整面板也能獨立捲動。手機離開頁面或音訊中斷時會暫停。回到頁面後，點「繼續播放」即可重新啟動音訊。專注計時以實際時間運作。計時到點時，頁面需在前景且音訊可用才能播放提示音。
+
+樂器出現在樂譜時才會請求對應取樣。取樣準備前或載入失敗時，該樂器會使用原有的合成音色。載入失敗的取樣可在 30 秒後、下次演奏該樂器時重試。開發者工具會記錄播放狀態、失敗的取樣包與解碼音名。
+
+需有 Node.js 20 以上。從專案根目錄執行：
+
+```sh
+npm ci
+npx playwright install chromium webkit
+npm test
+```
+
+測試會檢查 iPhone 尺寸的 WebKit、Android 尺寸的 Chromium、桌面 Chrome for Testing、取樣錯誤回復、`file://` 相容性，以及 Pages 子路徑下全部 20 個取樣包。若已安裝 Microsoft Edge，設 `TEST_EDGE=1` 後再執行 `npm test`，即可加入 Edge 測試。在 Windows PowerShell 可用 `$env:TEST_EDGE = '1'` 設定。
+
+真機驗收請分別在 iPhone Safari 和 Android Chrome 檢查直向、橫向、雙指縮放、捲動、設定面板、播放與停止、換曲和音量。播放中切到背景、鎖定再解鎖，以及接到電話或切換音訊輸出時，請確認回到頁面後能點「繼續播放」，且聲音沒有重疊。Playwright 使用模擬的可見性與中斷事件。若使用的 WebKit 建置未提供 Web Audio，測試會標示僅驗證介面、編曲及缺少音訊功能時的提示。
+
+## 版本更新
+
+### 2026.11.16（2026 年 11 月 16 日）
+
+- 手機支援直向與橫向，改善安全區域、捲動和觸控操作。
+- 新增停止按鈕，手機切到背景或音訊中斷後可回到頁面手動繼續播放。
+- 樂器取樣按需載入，沿用原始錄音。Android Chromium 模擬及桌面 Chrome、Edge 已驗證音訊輸出，iPhone Safari 真機驗收待完成。
+
+## GitHub Pages 部署
+
+1. 目前 iPhone 驗收版本由 `fix/mobile-compatibility` 的 `/ (root)` 發布。
+2. 完成驗收並合併 PR 後，在 **Settings → Pages** 將發布來源切到 `main` 的 `/ (root)`。專案根目錄的 `.nojekyll` 讓 Pages 直接提供靜態 HTML 和取樣檔。
+3. 在 **Actions** 確認 Pages 部署成功。開啟 [GitHub Pages 網頁](https://uktwanimatorcodeps.github.io/Generative-music-tool/)，按下播放並在 Network 確認請求路徑為 `/Generative-music-tool/samples/…`、回傳 200。
+4. 發布前可用 `node tools/serve.mjs` 啟動靜態伺服器，開啟 `http://localhost:8765/Generative-music-tool/` 檢查相同的子路徑。此靜態網站無需打包。

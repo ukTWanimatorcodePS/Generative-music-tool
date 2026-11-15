@@ -2,15 +2,15 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>專注樂坊</title>
 <style>
 :root{--acc:#f2c35f;--fg:#e6e8f0;--mute:rgba(214,220,240,.5);--faint:rgba(214,220,240,.14);
   --sans:"Inter","Helvetica Neue","Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
   --serif:"Cormorant Garamond","Noto Serif TC","Songti TC","PMingLiU",Georgia,serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{margin:0;color:var(--fg);background:#060911;font:14px/1.6 var(--sans);overflow:hidden}
+html,body{min-height:100%}
+body{margin:0;color:var(--fg);background:#060911;font:14px/1.6 var(--sans)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 .bg{position:fixed;inset:0;opacity:0;transition:opacity 2s ease}
 .bg.on{opacity:1}
@@ -19,9 +19,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 #bg-lofi{background:radial-gradient(90% 80% at 50% 45%,#231a36 0%,#110e20 55%,#060911 100%)}
 #bg-noise{background:radial-gradient(90% 80% at 50% 45%,#1a2030 0%,#0d111b 55%,#060911 100%)}
 #grain{position:fixed;inset:0;opacity:.07;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-#app{position:relative;height:100%;display:flex;flex-direction:column;max-width:1500px;margin:0 auto;padding:16px clamp(16px,5vw,90px) 18px}
+#app{position:relative;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;max-width:1500px;margin:0 auto;
+  padding:16px clamp(16px,5vw,90px) 18px;
+  padding:max(16px,env(safe-area-inset-top)) max(clamp(16px,5vw,90px),env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(clamp(16px,5vw,90px),env(safe-area-inset-left))}
+body.open{overflow:hidden}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
 
-#cats{position:relative;display:flex;align-self:center;gap:clamp(14px,3vw,34px)}
+#cats{position:relative;display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;align-self:center;gap:0 clamp(14px,3vw,34px)}
 #cats button{padding:4px 0 8px;font-size:11.5px;letter-spacing:.38em;margin-right:-.38em;color:var(--mute);transition:color .5s,text-shadow .5s;white-space:nowrap}
 #cats button:hover{color:var(--fg)}
 #cats button.on{color:var(--acc);text-shadow:0 0 14px rgba(242,195,95,.55)}
@@ -29,7 +33,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 
 header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:6px 24px;margin-top:14px}
 .tl{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
-#smp{position:fixed;left:50%;bottom:3px;transform:translateX(-50%);font-size:10px;letter-spacing:.2em;color:var(--mute);white-space:nowrap;pointer-events:none}
+#smp,#audio-status{margin:0;text-align:center;font-size:12px;color:var(--mute)}
+#smp:empty,#audio-status:empty{display:none}
 #title{margin:0;font-size:clamp(22px,2.8vw,34px);font-weight:600;letter-spacing:.1em;line-height:1.15;transition:color 1s,text-shadow 1s}
 body.playing #title{color:var(--acc);text-shadow:0 0 26px rgba(242,195,95,.35)}
 #era{font-size:12.5px;letter-spacing:.28em;color:var(--fg);opacity:.85}
@@ -49,7 +54,7 @@ body.playing #title{color:var(--acc);text-shadow:0 0 26px rgba(242,195,95,.35)}
 #stage{position:relative;flex:1;min-height:160px;margin:8px 0 10px}
 #roll{position:absolute;inset:0;width:100%;height:100%}
 
-footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px 30px;align-items:end}
+footer{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px 30px;align-items:end}
 .pan label{display:block;font-size:10.5px;letter-spacing:.3em;color:var(--mute);margin-bottom:6px}
 #pl{max-width:340px}
 #dens{display:block;width:100%;height:74px}
@@ -84,12 +89,15 @@ footer{display:grid;grid-template-columns:1fr auto 1fr;gap:10px 30px;align-items
 @keyframes ring{from{opacity:.5;transform:scale(1)}to{opacity:0;transform:scale(2)}}
 
 #shade{position:fixed;inset:0;background:rgba(3,5,10,.6);opacity:0;pointer-events:none;transition:opacity .5s}
-#sheet{position:fixed;left:50%;bottom:0;width:min(560px,100%);max-height:86%;overflow:auto;padding:10px 26px 28px;border-radius:18px 18px 0 0;background:rgba(12,16,30,.94);backdrop-filter:blur(18px);border:1px solid var(--faint);border-bottom:0;transform:translate(-50%,105%);transition:transform .6s cubic-bezier(.2,.9,.2,1)}
+#sheet{position:fixed;left:50%;bottom:0;width:min(560px,100%);max-height:86vh;max-height:min(90dvh,calc(100dvh - env(safe-area-inset-top) - 8px));overflow:auto;overscroll-behavior:contain;
+  padding:10px 26px 28px;padding:10px max(16px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));visibility:hidden;border-radius:18px 18px 0 0;background:rgba(12,16,30,.94);backdrop-filter:blur(18px);border:1px solid var(--faint);border-bottom:0;transform:translate(-50%,105%);transition:transform .6s cubic-bezier(.2,.9,.2,1)}
 body.open #shade{opacity:1;pointer-events:auto}
-body.open #sheet{transform:translate(-50%,0)}
+body.open #sheet{visibility:visible;transform:translate(-50%,0)}
+#sheet-close{display:block;margin-left:auto}
+#site-url{display:block;color:var(--acc);overflow-wrap:anywhere}
 #sheet .grab{width:38px;height:3px;border-radius:9px;background:var(--faint);margin:0 auto 10px}
 #sheet h2{font-size:10.5px;font-weight:500;letter-spacing:.34em;color:var(--acc);margin:20px 0 8px}
-label.row{display:grid;grid-template-columns:72px 1fr 44px;align-items:center;gap:12px;padding:5px 0;letter-spacing:.08em}
+label.row{display:grid;grid-template-columns:72px minmax(0,1fr) 44px;align-items:center;gap:12px;padding:5px 0;letter-spacing:.08em}
 label.row span:last-child{color:var(--mute);text-align:right;font-size:12px;font-variant-numeric:tabular-nums}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;border-radius:9px;background:var(--faint);outline:0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--acc);border:0;cursor:pointer;transition:transform .2s;box-shadow:0 0 12px var(--acc)}
@@ -103,13 +111,29 @@ input[type=number]{width:62px}
 .soft:hover{border-color:var(--acc);color:var(--acc)}
 .tip{color:var(--mute);font-size:12px;margin:2px 0 0;letter-spacing:.04em}
 @media (max-width:820px){
-  footer{grid-template-columns:1fr 1fr;gap:14px 20px}
+  footer{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}
   .mid{grid-column:1/-1;grid-row:1}
   .stats{gap:18px}
   .lv{grid-template-columns:3.6em 1fr 2.6em;gap:8px;letter-spacing:.18em}
   #dens{height:60px}
 }
 @media (max-width:520px){.stats{gap:4px 16px}.stats b{font-size:16px}#cats button{letter-spacing:.2em;margin-right:-.2em}.stats label{letter-spacing:.15em}.stats>*{gap:7px}}
+@media (max-width:360px){footer{grid-template-columns:minmax(0,1fr)}#pr{justify-self:stretch}}
+@media (pointer:coarse),(max-width:820px){
+  #cats button,#chips button{min-width:44px;min-height:44px;margin:0;padding:4px}
+  .ctl{width:max-content;max-width:100%;justify-content:center;flex-wrap:wrap;gap:12px}
+  .icon{width:44px;height:44px}
+  .soft,#timer,select,input[type=number]{min-height:44px}
+  select,input[type=number]{font-size:16px}
+  input[type=range]{height:44px;min-width:0;margin:0;background:linear-gradient(var(--faint),var(--faint)) center/100% 2px no-repeat}
+  input[type=range]::-webkit-slider-thumb{width:22px;height:22px}
+}
+@media (orientation:landscape) and (max-height:520px){
+  #app{padding-top:max(6px,env(safe-area-inset-top))}
+  header{margin-top:4px}
+  #stage{min-height:112px}
+  #dens{height:48px}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -142,17 +166,19 @@ input[type=number]{width:62px}
           <svg class="pl" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
           <svg class="pa" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" rx="1.4"/><rect x="13.9" y="5" width="3.6" height="14" rx="1.4"/></svg>
         </button>
-        <button class="icon" id="gear" title="調整" aria-label="調整"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+        <button class="icon" id="stop" title="停止" aria-label="停止"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></svg></button>
+        <button class="icon" id="gear" aria-controls="sheet" aria-expanded="false" title="調整" aria-label="調整"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
       </div>
     </div>
     <div class="pan" id="pr"></div>
   </footer>
+  <p id="audio-status" role="status"></p>
+  <p id="smp" role="status"></p>
 </div>
-
-<div id="smp"></div>
 <div id="shade"></div>
-<div id="sheet">
+<div id="sheet" role="region" aria-label="調整" inert>
   <div class="grab"></div>
+  <button class="soft" id="sheet-close">關閉</button>
   <h2>聲音</h2>
   <label class="row"><span>音量</span><input type="range" id="vol" min="0" max="1" step="0.01"><span></span></label>
   <label class="row"><span>速度</span><input type="range" id="tempo" min="0.7" max="1.3" step="0.01"><span></span></label>
@@ -168,6 +194,16 @@ input[type=number]{width:62px}
   <p class="tip">時間到會響一聲輕鐘；休息時音樂自動轉小聲。</p>
   <h2>匯出</h2>
   <div class="inline"><button class="soft" id="midi">下載 MIDI</button><span id="midiinfo" class="tip">尚未產生音符</span></div>
+  <h2>版本更新</h2>
+  <p id="release-version">版本 2026.11.16 · <time datetime="2026-11-16">2026 年 11 月 16 日</time></p>
+  <p class="tip">專注樂坊網址
+    <a id="site-url" href="https://uktwanimatorcodeps.github.io/Generative-music-tool/">https://uktwanimatorcodeps.github.io/Generative-music-tool/</a>
+  </p>
+  <ul class="tip">
+    <li>手機直向、橫向皆可使用，改善捲動、安全區域與觸控操作。</li>
+    <li>新增停止按鈕。切到背景或音訊中斷後，回到頁面可點「繼續播放」。</li>
+    <li>樂器取樣改為按需載入，沿用原始錄音。</li>
+  </ul>
 </div>
 
 <script>
@@ -505,13 +541,65 @@ const INST={
 const SK={piano:{g:1.15,rel:.22,cut:1},epiano:{g:.65,rel:.2},harpsi:{g:.6,rel:.12},organ:{g:.48,rel:.15,loop:1,att:.03},marimba:{g:.8,rel:.3},harp:{g:.9,rel:.5},bell:{g:.5,rel:.6},
   strings:{g:.42,rel:.5,loop:1,att:.25},cello:{g:.6,rel:.3,loop:1,att:.07},violin:{g:.72,rel:.3,loop:1,att:.07},flute:{g:.55,rel:.2,loop:1,att:.04},clarinet:{g:.5,rel:.2,loop:1,att:.04},horn:{g:.6,rel:.3,loop:1,att:.06},
   choir:{g:.38,rel:.8,loop:1,att:.35},pizz:{g:.8,rel:.2},guitar:{g:.9,rel:.4},koto:{g:.7,rel:.4},vibes:{g:.7,rel:.8},mbox:{g:.55,rel:.5},upright:{g:.72,rel:.15}};
-const SMP={},SMPSTATE={n:0,total:Object.keys(SK).length};
+const SMP=new Map(),sampleQueue=new Set(),sampleFailures=new Map();
+const SAMPLE_BUDGET=96*1024*1024,SAMPLE_RETRY_MS=30000;
+let sampleBytes=0,loadingSamples=false;
+function requestPack(name){
+  if(!SK[name]||SMP.has(name)||Date.now()<(sampleFailures.get(name)||0))return;
+  sampleQueue.add(name);
+  if(!loadingSamples)void drainSampleQueue();
+}
+function loadPackScript(name){
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    const finish=(error)=>{
+      clearTimeout(timeout);
+      script.onload=script.onerror=null;
+      script.remove();
+      const pack=window.SMPK?.[name];
+      if(window.SMPK)delete window.SMPK[name];
+      if(error||!pack)reject(error||new Error('取樣包沒有資料'));
+      else resolve(pack);
+    };
+    script.src=new URL('./samples/'+name+'.js',document.baseURI).href;
+    script.onload=()=>finish();
+    script.onerror=()=>finish(new Error('取樣包載入失敗'));
+    const timeout=setTimeout(()=>finish(new Error('取樣包載入逾時')),20000);
+    document.head.appendChild(script);
+  });
+}
+async function drainSampleQueue(){
+  loadingSamples=true;
+  try{
+    while(sampleQueue.size&&playing&&ctx.state==='running'&&!document.hidden){
+      const name=sampleQueue.values().next().value;
+      try{
+        const notes=await decodePack(name,await loadPackScript(name));
+        const bytes=notes.reduce((n,{buf})=>n+buf.length*buf.numberOfChannels*4,0);
+        while(SMP.size&&sampleBytes+bytes>SAMPLE_BUDGET){
+          const oldest=SMP.keys().next().value;
+          sampleBytes-=SMP.get(oldest).bytes;
+          SMP.delete(oldest);
+        }
+        SMP.set(name,{notes,bytes});
+        sampleBytes+=bytes;
+        sampleFailures.delete(name);
+        if(sampleFailures.size===0)setText('smp','');
+      }catch(error){
+        sampleFailures.set(name,Date.now()+SAMPLE_RETRY_MS);
+        console.warn('[取樣]',name,error);
+        setText('smp','部分取樣暫時無法載入，使用合成音色。');
+      }finally{sampleQueue.delete(name)}
+    }
+  }finally{loadingSamples=false}
+}
 const NN={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 function noteNum(s){const m=/^([A-G])(s|#|b)?(-?\d)$/.exec(s);return m?NN[m[1]]+(m[2]==='b'?-1:m[2]?1:0)+12*(+m[3]+1):null}
-async function decodePack(name){const pk=window.SMPK&&window.SMPK[name];if(!pk||!ctx||SMP[name]||!SK[name])return;SMP[name]=[];const K=SK[name],arr=[];
-  await Promise.all(Object.keys(pk).map(async key=>{const m=noteNum(key);if(m===null)return;try{
+async function decodePack(name,pk){
+  const K=SK[name],arr=[];
+  for(const key of Object.keys(pk)){const m=noteNum(key);if(m===null)continue;try{
     const bin=atob(pk[key]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
-    const buf=await ctx.decodeAudioData(u.buffer),d0=buf.getChannelData(0),sr=buf.sampleRate;let pk2=0;for(let i=0;i<d0.length;i+=3)pk2=Math.max(pk2,Math.abs(d0[i]));if(pk2<.001)return;
+    const buf=await ctx.decodeAudioData(u.buffer),d0=buf.getChannelData(0),sr=buf.sampleRate;let pk2=0;for(let i=0;i<d0.length;i+=3)pk2=Math.max(pk2,Math.abs(d0[i]));if(pk2<.001)continue;
     let off=0;while(off<d0.length&&Math.abs(d0[off])<pk2*.02)off++;off=Math.max(0,off-Math.floor(sr*.003));   /* 去掉開頭的空白 */
     const z={m,buf,off:off/sr,norm:.8/pk2};
     if(K.loop){let end=d0.length-1;while(end>off&&Math.abs(d0[end])<pk2*.12)end--;const span=end-off;            /* 長音：把持續段做成無縫循環 */
@@ -519,14 +607,18 @@ async function decodePack(name){const pk=window.SMPK&&window.SMPK[name];if(!pk||
         for(let c=0;c<buf.numberOfChannels;c++){const s=buf.getChannelData(c),o=nb.getChannelData(c);o.set(s.subarray(0,L1));
           for(let i=0;i<F;i++){const w=i/F*Math.PI/2;o[L1-F+i]=s[L1-F+i]*Math.cos(w)+s[L0-F+i]*Math.sin(w)}}
         z.buf=nb;z.ls=L0/sr;z.le=L1/sr}}
-    arr.push(z)}catch(e){}}));
-  arr.sort((a,b)=>a.m-b.m);SMP[name]=arr;window.SMPK[name]=null;SMPSTATE.n++;if(window.onSampleReady)window.onSampleReady()}
-window.onSamplePack=name=>{if(ctx)decodePack(name)};
+    arr.push(z)}catch(error){console.warn('[取樣解碼]',name,key,error)}}
+  if(!arr.length)throw new Error('沒有可解碼的取樣');
+  return arr.sort((a,b)=>a.m-b.m);
+}
 
-let ctx,master,musicLP,musicGain,reverbIn,noiseGain,noiseSrc,whiteBuf,gen=null,musicIn;const WAVES={};
+let ctx,master,musicLP,musicGain,reverbIn,noiseGain,noiseSrc=null,noiseType,noiseBuffer,whiteBuf,gen=null,musicIn;const WAVES={};
 function mkWave(n,fn){const re=new Float32Array(n+1),im=new Float32Array(n+1);for(let k=1;k<=n;k++)im[k]=fn(k);return ctx.createPeriodicWave(re,im)}
 function initAudio(){
-  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const Audio=window.AudioContext||window.webkitAudioContext;
+  if(!Audio)throw new Error('瀏覽器不支援 Web Audio');
+  ctx=new Audio();
+  ctx.addEventListener('statechange',audioStateChanged);
   WAVES.piano=mkWave(12,k=>(k===2?1.15:1)/Math.pow(k,1.7));
   WAVES.soft=mkWave(8,k=>1/Math.pow(k,2.2));
   WAVES.str=mkWave(14,k=>1/Math.pow(k,1.15));
@@ -545,41 +637,95 @@ function initAudio(){
   conv.buffer=ir;reverbIn=ctx.createGain();reverbIn.connect(conv);conv.connect(musicIn);
   whiteBuf=ctx.createBuffer(1,sr,sr);const w=whiteBuf.getChannelData(0);for(let i=0;i<w.length;i++)w[i]=Math.random()*2-1;
   noiseGain=ctx.createGain();noiseGain.gain.value=0;noiseGain.connect(master);
-  setNoise();applyParams();
-  for(const k in SK)decodePack(k);
+  applyParams();
+}
+function stopNoise(){
+  if(!noiseSrc)return;
+  noiseSrc.stop();
+  noiseSrc.disconnect();
+  noiseSrc=null;
 }
 function setNoise(){
-  if(!ctx)return;if(noiseSrc){try{noiseSrc.stop()}catch(e){}noiseSrc.disconnect()}
-  const type=curNoiseType(),len=ctx.sampleRate*8,buf=ctx.createBuffer(2,len,ctx.sampleRate);
+  if(!playing||ctx.state!=='running')return;
+  const type=curNoiseType();
+  if(noiseSrc&&noiseType===type)return;
+  stopNoise();
+  const len=ctx.sampleRate*8;
+  if(noiseType!==type||!noiseBuffer){
+  const buf=ctx.createBuffer(2,len,ctx.sampleRate);
   for(let c=0;c<2;c++){const d=buf.getChannelData(c);let l=0,b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
     for(let i=0;i<len;i++){const w=Math.random()*2-1;
       if(type==='brown'){l=(l+.02*w)/1.02;d[i]=l*3.2}
       else if(type==='pink'){b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.1;b6=w*.115926}
       else d[i]=w*.25}
     const F=2000;for(let i=0;i<F;i++){const k=i/F;d[i]=d[i]*k+d[len-F+i]*(1-k)} }
-  noiseSrc=ctx.createBufferSource();noiseSrc.buffer=buf;noiseSrc.loop=true;noiseSrc.loopEnd=(len-2000)/ctx.sampleRate;noiseSrc.connect(noiseGain);noiseSrc.start();
+    noiseType=type;
+    noiseBuffer=buf;
+  }
+  noiseSrc=ctx.createBufferSource();noiseSrc.buffer=noiseBuffer;noiseSrc.loop=true;noiseSrc.loopEnd=(len-2000)/ctx.sampleRate;noiseSrc.connect(noiseGain);noiseSrc.start();
 }
-function newGen(){const g=ctx.createGain();g.gain.value=0;g.gain.setTargetAtTime(1,ctx.currentTime,.08);g.connect(musicIn);return{gain:g,buses:{}}}
-function killGen(g){if(!g)return;g.gain.gain.setTargetAtTime(0,ctx.currentTime,.12);setTimeout(()=>{try{g.gain.disconnect();for(const k in g.buses)g.buses[k].send.disconnect()}catch(e){}},2500)}
-function bus(inst){let b=gen.buses[inst];if(!b){const i=ctx.createGain(),s=ctx.createGain();s.gain.value=INST[inst].rev;i.connect(gen.gain);i.connect(s);s.connect(reverbIn);b=gen.buses[inst]={in:i,send:s}}return b.in}
+function newGen(){
+  const gain=ctx.createGain(),wet=ctx.createGain();
+  gain.gain.value=0;
+  gain.gain.setTargetAtTime(1,ctx.currentTime,.08);
+  gain.connect(musicIn);
+  wet.connect(reverbIn);
+  return {gain,wet,buses:{},sources:new Set()};
+}
+function killGen(g){
+  if(!g)return;
+  const now=ctx.currentTime;
+  const fade=ctx.state==='running'?.14:0;
+  for(const node of [g.gain,g.wet]){
+    node.gain.cancelScheduledValues(now);
+    node.gain.setTargetAtTime(0,now,.025);
+  }
+  for(const source of g.sources)source.stop(now+fade);
+  g.sources.clear();
+  const disconnect=()=>{
+    g.gain.disconnect();g.wet.disconnect();
+    for(const b of Object.values(g.buses)){b.in.disconnect();b.send.disconnect()}
+  };
+  if(fade)setTimeout(disconnect,fade*1000);
+  else disconnect();
+}
+function bus(inst){
+  let b=gen.buses[inst];
+  if(!b){
+    const i=ctx.createGain(),s=ctx.createGain();
+    s.gain.value=INST[inst].rev;i.connect(gen.gain);i.connect(s);s.connect(gen.wet);
+    b=gen.buses[inst]={in:i,send:s};
+  }
+  return b.in;
+}
 
 function playNote(inst,midi,t,dur,vel,pan,dest){
   const I=INST[inst],c=ctx,out=dest||bus(inst);
+  const group=dest?null:gen;
+  function track(source){
+    if(group){
+      group.sources.add(source);
+      source.onended=()=>{group.sources.delete(source);source.disconnect()};
+    }
+    return source;
+  }
   let tail=out;if(pan&&c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=pan;p.connect(out);tail=p}
   const g=c.createGain();
   if(I.drum){
-    if(inst==='kick'){const o=c.createOscillator();o.frequency.setValueAtTime(105,t);o.frequency.exponentialRampToValueAtTime(42,t+.11);
+    if(inst==='kick'){const o=track(c.createOscillator());o.frequency.setValueAtTime(105,t);o.frequency.exponentialRampToValueAtTime(42,t+.11);
       g.gain.setValueAtTime(vel*.85,t);g.gain.exponentialRampToValueAtTime(.001,t+.26);o.connect(g);g.connect(tail);o.start(t);o.stop(t+.3)}
-    else{const s=c.createBufferSource();s.buffer=whiteBuf;const f=c.createBiquadFilter();f.type='bandpass';
+    else{const s=track(c.createBufferSource());s.buffer=whiteBuf;const f=c.createBiquadFilter();f.type='bandpass';
       if(inst==='snare'){f.frequency.value=1300;f.Q.value=.9}else{f.frequency.value=5200;f.Q.value=1.2}
       const dd=inst==='snare'?.11:.035;g.gain.setValueAtTime(vel*(inst==='snare'?.9:.6),t);g.gain.exponentialRampToValueAtTime(.001,t+dd);
       s.connect(f);f.connect(g);g.connect(tail);s.start(t,Math.random()*.5);s.stop(t+dd+.05)}
     return}
   if(I.max)while(midi>I.max)midi-=12;
   const f=440*Math.pow(2,(midi-69)/12),v=Math.min(1,vel),hi=midi>72?Math.max(.4,1-(midi-72)*.022):1;
-  const Z=SMP[inst],K=SK[inst];
+  const pack=SMP.get(inst),K=SK[inst],Z=pack?.notes;
+  if(pack){SMP.delete(inst);SMP.set(inst,pack)}
+  else requestPack(inst);
   if(Z&&Z.length){let b=Z[0];for(const z of Z)if(Math.abs(z.m-midi)<Math.abs(b.m-midi))b=z;      /* 有取樣就用真實錄音，沒有才用合成 */
-    if(Math.abs(b.m-midi)<=9){const att=K.att||.004,end=t+Math.max(dur,att+.02),peak=Math.pow(v,1.15)*K.g*b.norm*Math.max(.55,hi),src=c.createBufferSource();
+    if(Math.abs(b.m-midi)<=9){const att=K.att||.004,end=t+Math.max(dur,att+.02),peak=Math.pow(v,1.15)*K.g*b.norm*Math.max(.55,hi),src=track(c.createBufferSource());
       src.buffer=b.buf;src.playbackRate.value=Math.pow(2,(midi-b.m)/12);if(b.le){src.loop=true;src.loopStart=b.ls;src.loopEnd=b.le}
       g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(peak,t+att);g.gain.setTargetAtTime(0,end,K.rel/3);
       let node=g;if(K.cut){const fl=c.createBiquadFilter();fl.type='lowpass';fl.Q.value=.2;fl.frequency.value=Math.min(16000,700+11000*Math.pow(v,1.4)+f*2);g.connect(fl);node=fl}   /* 彈得越輕，音色越暗 */
@@ -594,16 +740,16 @@ function playNote(inst,midi,t,dur,vel,pan,dest){
   if(I.fenv){fl.frequency.setValueAtTime(Math.min(10000,base*(1+I.fenv*v)),t);fl.frequency.setTargetAtTime(base,t+.01,I.fd)}else fl.frequency.value=base;
   g.connect(fl);fl.connect(tail);
   let lfo=null,lg=null,mod=null,mg=null;
-  if(I.vib){lfo=c.createOscillator();lfo.frequency.value=5+Math.random()*.6;lg=c.createGain();lg.gain.setValueAtTime(0,t);lg.gain.setTargetAtTime(I.vib,t+.3,.35);lfo.connect(lg);lfo.start(t);lfo.stop(stop)}
-  if(I.fm){mod=c.createOscillator();mod.frequency.value=f*I.fm[0];mg=c.createGain();const ix=f*I.fm[1]*(.4+v);
+  if(I.vib){lfo=track(c.createOscillator());lfo.frequency.value=5+Math.random()*.6;lg=c.createGain();lg.gain.setValueAtTime(0,t);lg.gain.setTargetAtTime(I.vib,t+.3,.35);lfo.connect(lg);lfo.start(t);lfo.stop(stop)}
+  if(I.fm){mod=track(c.createOscillator());mod.frequency.value=f*I.fm[0];mg=c.createGain();const ix=f*I.fm[1]*(.4+v);
     mg.gain.setValueAtTime(ix,t);mg.gain.setTargetAtTime(ix*.12,t,.45);mod.connect(mg);mod.start(t);mod.stop(stop)}
-  for(const det of I.det){const o=c.createOscillator();if(WAVES[I.w])o.setPeriodicWave(WAVES[I.w]);else o.type=I.w;
+  for(const det of I.det){const o=track(c.createOscillator());if(WAVES[I.w])o.setPeriodicWave(WAVES[I.w]);else o.type=I.w;
     o.frequency.value=f;o.detune.value=det;if(lg)lg.connect(o.detune);if(mg)mg.connect(o.frequency);o.connect(g);o.start(t);o.stop(stop)}
-  if(I.p)for(const [ratio,gain] of I.p){const o=c.createOscillator(),pg=c.createGain();o.frequency.value=f*ratio;pg.gain.value=gain;o.connect(pg);pg.connect(g);o.start(t);o.stop(stop)}
-  if(I.breath){const s=c.createBufferSource(),nf=c.createBiquadFilter(),ng=c.createGain();s.buffer=whiteBuf;s.loop=true;nf.type='bandpass';nf.frequency.value=Math.min(6000,f*2);nf.Q.value=1.5;
+  if(I.p)for(const [ratio,gain] of I.p){const o=track(c.createOscillator()),pg=c.createGain();o.frequency.value=f*ratio;pg.gain.value=gain;o.connect(pg);pg.connect(g);o.start(t);o.stop(stop)}
+  if(I.breath){const s=track(c.createBufferSource()),nf=c.createBiquadFilter(),ng=c.createGain();s.buffer=whiteBuf;s.loop=true;nf.type='bandpass';nf.frequency.value=Math.min(6000,f*2);nf.Q.value=1.5;
     ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(v*I.breath*2,t+.03);ng.gain.setTargetAtTime(v*I.breath,t+.03,.08);ng.gain.setTargetAtTime(0,end,.06);
     s.connect(nf);nf.connect(ng);ng.connect(tail);s.start(t,Math.random()*.5);s.stop(end+.4)}
-  if(I.thump){const s=c.createBufferSource(),nf=c.createBiquadFilter(),ng=c.createGain();s.buffer=whiteBuf;nf.type='lowpass';nf.frequency.value=420;
+  if(I.thump){const s=track(c.createBufferSource()),nf=c.createBiquadFilter(),ng=c.createGain();s.buffer=whiteBuf;nf.type='lowpass';nf.frequency.value=420;
     ng.gain.setValueAtTime(v*.09,t);ng.gain.exponentialRampToValueAtTime(.0005,t+.05);s.connect(nf);nf.connect(ng);ng.connect(tail);s.start(t,Math.random()*.5);s.stop(t+.07)}
 }
 
@@ -614,7 +760,7 @@ let midiLog=[],tempoLog=[];
 const newSeed=()=>(Date.now()^Math.floor(Math.random()*0xffffffff))>>>0;
 
 function tick(){
-  if(!playing)return;const now=ctx.currentTime;if(nextT<now)nextT=now+.05;
+  if(!playing||ctx.state!=='running')return;const now=ctx.currentTime;if(nextT<now)nextT=now+.05;
   while(nextT<now+LOOK){
     if(P.rotate>0&&rotPool().length>1&&st.secBar>=STYLES[st.style].secBars&&now-styleStart>P.rotate*60){
       const o=rotPool().filter(x=>x!==st.style);curStyle=o[Math.floor(Math.random()*o.length)];st=newPiece(curStyle,newSeed());styleStart=now;markStyle();save()}
@@ -629,13 +775,86 @@ function tick(){
     bars.push(nextT);nextT+=(B*(1+k)+gap)*spb;beatPos+=B*(1+k)+gap}
   showNow();
 }
-function start(fresh){
-  if(!ctx)initAudio();if(ctx.state==='suspended')ctx.resume();
-  visResume();killGen(gen);gen=null;clearInterval(timerId);playing=true;
-  if(!noiseOnly){if(fresh||!st){st=newPiece(curStyle,newSeed());styleStart=ctx.currentTime}
-    gen=newGen();nextT=ctx.currentTime+.15;timerId=setInterval(tick,100);tick()}
-  applyParams();setPlayUI()}
-function pause(){playing=false;clearInterval(timerId);killGen(gen);gen=null;applyParams();setPlayUI()}
+let playRequest=null,needsResume=false;
+const touchLayout=matchMedia('(pointer: coarse)');
+function unlockAudio(){
+  if(!ctx)initAudio();
+  return ctx.state==='running'?Promise.resolve():ctx.resume();
+}
+function beginPlayback(fresh){
+  if(ctx.state!=='running'){
+    audioStateChanged();
+    return;
+  }
+  sampleQueue.clear();
+  visResume();
+  killGen(gen);gen=null;
+  clearInterval(timerId);timerId=null;
+  playing=true;
+  if(!noiseOnly){
+    if(fresh||!st){st=newPiece(curStyle,newSeed());styleStart=ctx.currentTime}
+    gen=newGen();
+    nextT=ctx.currentTime+.15;
+    timerId=setInterval(tick,100);
+    tick();
+  }
+  setNoise();
+  applyParams();
+  setPlayUI();
+}
+async function start(fresh){
+  const request={};
+  playRequest=request;
+  let timeout;
+  setText('audio-status','');
+  try{
+    // resume() 必須在點擊的同步呼叫堆疊內送出。
+    const ready=unlockAudio();
+    setPlayUI();
+    await Promise.race([ready,new Promise((_,reject)=>{
+      timeout=setTimeout(()=>reject(new Error('AudioContext resume timed out')),3000);
+    })]);
+    if(playRequest!==request)return;
+    if(ctx.state!=='running'||document.hidden)throw new Error('AudioContext: '+ctx.state);
+    needsResume=false;
+    beginPlayback(fresh);
+    playRequest=null;
+    setPlayUI();
+  }catch(error){
+    if(playRequest!==request)return;
+    console.warn('[播放]',error);
+    pause('無法開始音訊，請再點一次播放。');
+  }finally{clearTimeout(timeout)}
+}
+function pause(message=''){
+  playRequest=null;
+  needsResume=!!message;
+  playing=false;
+  clearInterval(timerId);timerId=null;
+  killGen(gen);gen=null;
+  stopNoise();
+  sampleQueue.clear();
+  applyParams();
+  setText('audio-status',message);
+  setPlayUI();
+}
+function audioStateChanged(){
+  if(playing&&ctx.state!=='running'){
+    console.info('[播放] AudioContext:',ctx.state);
+    pause('音訊已中斷，請點播放繼續。');
+  }
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden&&(playing||playRequest)&&(touchLayout.matches||ctx?.state!=='running')){
+    pause('播放已暫停，請點播放繼續。');
+  }else if(!document.hidden){
+    audioStateChanged();
+    if(playing&&gen)tick();
+  }
+});
+addEventListener('pagehide',()=>{
+  if(playing||playRequest)pause('播放已暫停，請點播放繼續。');
+});
 
 /* ============ MIDI 匯出 ============ */
 function exportMidi(){
@@ -711,10 +930,6 @@ const EX={
   lofinight:{orch:{solo:['flute','clarinet'],col:['vibes','guitar']}}};
 for(const k in EX)Object.assign(STYLES[k],EX[k]);
 for(const k of ['mozart','chopin','satie','sakamoto','hisaishi'])STYLES[k].intro=1;
-/* 載入真實樂器取樣（samples/*.js）；載不到的樂器會自動退回合成音色 */
-for(const k in SK){const s=document.createElement('script');s.src='samples/'+k+'.js';s.async=true;document.head.appendChild(s)}
-window.onSampleReady=()=>{const e=document.getElementById('smp');if(e)e.textContent=SMPSTATE.n<SMPSTATE.total?`真實樂器取樣 ${SMPSTATE.n}/${SMPSTATE.total}`:''};
-
 const CATS={
   classic:{name:'古典',styles:['bach','mozart','chopin','satie','debussy']},
   japan:{name:'日本現代',styles:['sakamoto','hisaishi']},
@@ -764,12 +979,20 @@ function showNow(){let t,s,l,id;
 function markStyle(){const cur=noiseOnly?cfg.npure:curStyle;for(const b of $('chips').children)b.classList.toggle('on',b.dataset.id===cur);
   if(lastMarked!==null&&cur!==lastMarked)wipe();lastMarked=cur;showNow()}
 function setPlayUI(){$('play').classList.toggle('on',playing);document.body.classList.toggle('playing',playing);
-  if(playing){everPlayed=true;if(!window.SMPK)setText('smp','找不到 samples 資料夾，暫用合成音色')}else if(ctx){pNow=ctx.currentTime;vis=vis.filter(v=>v.a<=pNow);bars=bars.filter(t=>t<=pNow)}
+  $('play').setAttribute('aria-label',playing?'暫停':playRequest?'取消播放':needsResume?'繼續播放':'播放');
+  $('play').setAttribute('aria-busy',String(!!playRequest));
+  if(playing){everPlayed=true}else if(ctx){pNow=ctx.currentTime;vis=vis.filter(v=>v.a<=pNow);bars=bars.filter(t=>t<=pNow)}
   showNow()}
 function buildChips(){const box=$('chips');box.textContent='';
   (noiseOnly?Object.keys(NOISE):CATS[cat].styles).forEach((id,i)=>{const b=document.createElement('button');b.dataset.id=id;
-    b.textContent=noiseOnly?NOISE[id][0]:STYLES[id].name;b.style.animationDelay=i*60+'ms';
-    b.onclick=()=>{if(noiseOnly){cfg.npure=id;if(ctx)setNoise()}else curStyle=id;markStyle();save();start(true)};box.appendChild(b)})}
+    b.textContent=noiseOnly?NOISE[id][0]:STYLES[id].name;b.title='播放 '+b.textContent;b.style.animationDelay=i*60+'ms';
+    b.onclick=()=>{
+      if(playRequest)pause();
+      if(noiseOnly)cfg.npure=id;else curStyle=id;
+      if(!playing)st=null;
+      markStyle();save();
+      if(playing)beginPlayback(true);else start(true);
+    };box.appendChild(b)})}
 function moveThumb(){const b=$('cats').querySelector('.on');if(!b)return;const t=$('thumb'),ls=parseFloat(getComputedStyle(b).letterSpacing)||0;
   t.style.width=Math.max(0,b.offsetWidth-ls)+'px';t.style.transform=`translateX(${b.offsetLeft}px)`}
 function setCat(c,init){cat=c;noiseOnly=!!CATS[c].noise;
@@ -779,17 +1002,25 @@ function setCat(c,init){cat=c;noiseOnly=!!CATS[c].noise;
   $('pr').textContent='';lvEl=LVN[noiseOnly?1:0].map((n,k)=>{const d=document.createElement('div'),col=noiseOnly?'#c9d4ee':GC[k];d.className='lv';
     d.innerHTML=`<span>${n}</span><i><u style="background:${col};box-shadow:0 0 8px ${col}"></u></i><em>0%</em>`;$('pr').appendChild(d);return d});
   buildChips();markStyle();
-  if(!init){if(ctx)setNoise();if(playing)start(true);else st=null;save()}}
+  if(!init){if(playRequest)pause();if(playing)beginPlayback(true);else{st=null;showNow()}save()}}
 for(const k in CATS){const b=document.createElement('button');b.dataset.c=k;b.textContent=CATS[k].name;b.onclick=()=>{if(k!==cat)setCat(k)};$('cats').appendChild(b)}
 for(const k of KEYSV){$(k).value=cfg[k];
   $(k).addEventListener('input',()=>{if(k==='ntype'&&ctx&&!noiseOnly)setNoise();if((k==='fmin'||k==='bmin')&&!tRun)resetTimer();applyParams();save()})}
-$('play').onclick=()=>playing?pause():start(false);
-$('next').onclick=()=>{wipe();start(true)};
+$('play').onclick=()=>playing||playRequest?pause():start(false);
+$('next').onclick=()=>{wipe();if(playing)beginPlayback(true);else start(true)};
+$('stop').onclick=()=>{pause();st=null;wipe();showNow()};
 $('midi').onclick=exportMidi;
-$('gear').onclick=()=>document.body.classList.add('open');
-$('shade').onclick=()=>document.body.classList.remove('open');
-addEventListener('keydown',e=>{if(e.code==='Escape')document.body.classList.remove('open');
-  if(e.code==='Space'&&!/INPUT|SELECT|BUTTON/.test(e.target.tagName)){e.preventDefault();$('play').click()}});
+function showSettings(open){
+  document.body.classList.toggle('open',open);
+  $('sheet').inert=!open;
+  $('app').inert=open;
+  $('gear').setAttribute('aria-expanded',String(open));
+  (open?$('sheet-close'):$('gear')).focus({preventScroll:true});
+}
+$('gear').onclick=()=>showSettings(true);
+$('shade').onclick=$('sheet-close').onclick=()=>showSettings(false);
+addEventListener('keydown',e=>{if(e.code==='Escape'&&document.body.classList.contains('open'))showSettings(false);
+  if(e.code==='Space'&&!e.repeat&&!document.body.classList.contains('open')&&!/INPUT|SELECT|BUTTON/.test(e.target.tagName)){e.preventDefault();$('play').click()}});
 
 /* ============ 樂譜畫布 ============ */
 const PAGE=30,ACC='#f2c35f';
@@ -852,7 +1083,7 @@ function draw(){requestAnimationFrame(draw);const pn=performance.now(),dt=Math.m
     let act=0;if(!drum&&!v.dot){act=now<v.b?clamp(age/.08,0,1):Math.max(0,1-(now-v.b)/.7);if(!INST[v.i].s)act*=Math.exp(-age/2.2);
       if(now<v.b&&age<3){cnt[tg]++;heads.push(y,c,act)}}
     g.fillStyle=c;
-    if(v.dot){if(v.p&&v.p.kill===undefined&&v.p.a>=ps&&v.p.x<x){g.globalAlpha=.07*fade;g.strokeStyle='#fff';g.lineWidth=1;g.beginPath();g.moveTo(v.p.x,v.p.y);g.lineTo(x,y);g.stroke()}
+    if(v.dot){if(v.p?.a<ps)v.p=null;if(v.p&&v.p.kill===undefined&&v.p.x<x){g.globalAlpha=.07*fade;g.strokeStyle='#fff';g.lineWidth=1;g.beginPath();g.moveTo(v.p.x,v.p.y);g.lineTo(x,y);g.stroke()}
       const nw=Math.max(0,1-age/.9);glow(x,y,16,16,c,.7*nw*fade);g.globalAlpha=(.75+.25*nw)*fade*ap;g.beginPath();g.arc(x,y,3.2+1.6*ap+1.5*nw,0,7);g.fill()}
     else if(drum){g.globalAlpha=.5*fade*ap;g.beginPath();g.arc(x,y,2.2,0,7);g.fill()}
     else{const hh=bh*(1+.5*(1-ap));if(act>.02){g.globalCompositeOperation='lighter';glow(x+w/2,y,w/2+12,bh+9,c,.55*act*fade);g.globalCompositeOperation='source-over'}
@@ -891,14 +1122,24 @@ function panel(on){dg.clearRect(0,0,DW,DH);dg.fillStyle='rgba(255,255,255,.08)';
   if(n>1){dg.strokeStyle='#ffe9b8';dg.lineWidth=1.5;dg.shadowColor=ACC;dg.shadowBlur=10;dg.beginPath();let s=hE[0];hE.forEach((v,k)=>{s+=(v-s)*.5;k?dg.lineTo(sx(k),sy(s)):dg.moveTo(sx(k),sy(s))});dg.stroke();
     dg.fillStyle='#fff';dg.beginPath();dg.arc(sx(n-1),sy(s),3,0,7);dg.fill();dg.shadowBlur=0}}
 addEventListener('resize',resize);
+if(window.ResizeObserver){
+  const observer=new ResizeObserver(resize);
+  for(const id of ['stage','pl','cats'])observer.observe($(id));
+}
 
 /* ============ 計時 ============ */
 let tRun=false,tEnd=0,tLeft=0,tInt=null;
 function drawClock(s){s=Math.max(0,Math.ceil(s));$('clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');$('phase').textContent=onBreak?'休息':'專注'}
 function resetTimer(){tRun=false;clearInterval(tInt);onBreak=false;tLeft=(+$('fmin').value||25)*60;$('timer').classList.remove('run');drawClock(tLeft);applyParams()}
-function chime(){if(!ctx)initAudio();if(ctx.state==='suspended')ctx.resume();const t=ctx.currentTime+.05;[76,72,79].forEach((n,i)=>playNote('vibes',n,t+i*.45,2,.5,0,master))}
+function chime(){if(ctx?.state!=='running'||document.hidden)return;const t=ctx.currentTime+.05;[76,72,79].forEach((n,i)=>playNote('vibes',n,t+i*.45,2,.5,0,master))}
 function tTick(){tLeft=(tEnd-Date.now())/1000;if(tLeft<=0){chime();onBreak=!onBreak;tLeft=(+(onBreak?$('bmin'):$('fmin')).value||5)*60;tEnd=Date.now()+tLeft*1000;applyParams()}drawClock(tLeft)}
-$('timer').onclick=()=>{tRun=!tRun;clearInterval(tInt);if(tRun){tEnd=Date.now()+tLeft*1000;tInt=setInterval(tTick,500)}$('timer').classList.toggle('run',tRun)};
+$('timer').onclick=()=>{tRun=!tRun;clearInterval(tInt);if(tRun){
+  if(!ctx||(!needsResume&&!playRequest&&ctx.state==='suspended')){
+    try{unlockAudio().catch(error=>console.warn('[計時提示音]',error))}
+    catch(error){console.warn('[計時提示音]',error)}
+  }
+  tEnd=Date.now()+tLeft*1000;tInt=setInterval(tTick,500)
+}$('timer').classList.toggle('run',tRun)};
 $('treset').onclick=resetTimer;
 
 setCat(cat,true);resetTimer();applyParams();resize();draw();
