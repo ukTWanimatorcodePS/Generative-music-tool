@@ -1,0 +1,10 @@
+{
+  "name": "generative-music-tool",
+  "private": true,
+  "scripts": {
+    "test": "node --test tools/compat.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
+  }
+}
