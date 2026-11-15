@@ -4,6 +4,8 @@
 
 ## 使用方式
 
+使用 Safari 或 Chrome 開啟 [專注樂坊線上版](https://uktwanimatorcodeps.github.io/Generative-music-tool/)，點「播放」即可使用。網站的「調整 → 版本更新」可查看目前發布版本。
+
 直接用瀏覽器開啟 `index.html`，按播放即可。不需要安裝任何東西。
 
 也可以啟動內建的靜態伺服器：
@@ -64,9 +66,17 @@ npm test
 
 真機驗收請分別在 iPhone Safari 和 Android Chrome 檢查直向、橫向、雙指縮放、捲動、設定面板、播放與停止、換曲和音量。播放中切到背景、鎖定再解鎖，以及接到電話或切換音訊輸出時，請確認回到頁面後能點「繼續播放」，且聲音沒有重疊。Playwright 使用模擬的可見性與中斷事件。若使用的 WebKit 建置未提供 Web Audio，測試會標示僅驗證介面、編曲及缺少音訊功能時的提示。
 
+## 版本更新
+
+### 2026.11.16（2026 年 11 月 16 日）
+
+- 手機支援直向與橫向，改善安全區域、捲動和觸控操作。
+- 新增停止按鈕，手機切到背景或音訊中斷後可回到頁面手動繼續播放。
+- 樂器取樣按需載入，沿用原始錄音。Android Chromium 模擬及桌面 Chrome、Edge 已驗證音訊輸出，iPhone Safari 真機驗收待完成。
+
 ## GitHub Pages 部署
 
-1. 在獨立分支完成測試並審核 PR，合併後再發布。
-2. 在 GitHub 專案的 **Settings → Pages**，選擇 **Deploy from a branch**、`main` 與 `/ (root)`，然後儲存。專案根目錄的 `.nojekyll` 讓 Pages 直接提供靜態 HTML 和取樣檔。
+1. 目前 iPhone 驗收版本由 `fix/mobile-compatibility` 的 `/ (root)` 發布。
+2. 完成驗收並合併 PR 後，在 **Settings → Pages** 將發布來源切到 `main` 的 `/ (root)`。專案根目錄的 `.nojekyll` 讓 Pages 直接提供靜態 HTML 和取樣檔。
 3. 在 **Actions** 確認 Pages 部署成功。開啟 [GitHub Pages 網頁](https://uktwanimatorcodeps.github.io/Generative-music-tool/)，按下播放並在 Network 確認請求路徑為 `/Generative-music-tool/samples/…`、回傳 200。
 4. 發布前可用 `node tools/serve.mjs` 啟動靜態伺服器，開啟 `http://localhost:8765/Generative-music-tool/` 檢查相同的子路徑。此靜態網站無需打包。

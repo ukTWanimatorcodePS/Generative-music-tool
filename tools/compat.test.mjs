@@ -11,11 +11,24 @@ const root = new URL('../', import.meta.url);
 const prefix = '/Generative-music-tool/';
 let server, origin;
 before(async () => {
-  server = spawn(process.execPath, [fileURLToPath(new URL('serve.mjs', import.meta.url))], {
-    env: { ...process.env, PORT: '0' }, stdio: ['ignore', 'pipe', 'inherit']
-  });
-  const [data] = await once(server.stdout, 'data');
-  origin = String(data).match(/http:\/\/127\.0\.0\.1:\d+/)[0];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    server = spawn(process.execPath, [fileURLToPath(new URL('serve.mjs', import.meta.url))], {
+      env: { ...process.env, PORT: '0' }, stdio: ['ignore', 'pipe', 'inherit']
+    });
+    const [data] = await once(server.stdout, 'data');
+    origin = String(data).match(/http:\/\/127\.0\.0\.1:\d+/)[0];
+    try {
+      // The OS can assign a port blocked by browser-style HTTP clients.
+      const response = await fetch(origin, { method: 'HEAD' });
+      assert.equal(response.status, 200);
+      return;
+    } catch (error) {
+      if (error.cause?.message !== 'bad port' || attempt === 2) throw error;
+      const stopped = once(server, 'exit');
+      server.kill();
+      await stopped;
+    }
+  }
 });
 after(() => server?.kill());
 
@@ -120,6 +133,8 @@ for (const [label, engine, profile, launch] of profiles) {
       await page.locator('#fmin').fill('10');
       await press(page.locator('#treset'));
       assert.equal(await page.locator('#clock').textContent(), '10:00');
+      await page.locator('#release-version').scrollIntoViewIfNeeded();
+      assert.match(await page.locator('#release-version').textContent(), /版本 2026\.11\.16/);
       await press(page.locator('#sheet-close'));
       const music = await page.evaluate(() => Object.values(window.__selftest()));
       assert.ok(music.length > 0 && music.every(result => result.notes > 0 && result.bad === 0));
